@@ -94,7 +94,7 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SharpADB.Delegate\SharpADB.Delegate.csproj" />
+    <ProjectReference Include="..\SharpADB.Server\SharpADB.Server.vcxproj" />
     <ProjectReference Include="..\SharpADB\SharpADB.csproj" />
   </ItemGroup>
   <Import Project="$(WapProjPath)\Microsoft.DesktopBridge.targets" />

@@ -1,14 +1,16 @@
 ﻿using AdvancedSharpAdbClient;
-using ProcessForUWP.UWP.Helpers;
+using AdvancedSharpAdbClient.Logs;
+using SharpADB.Common;
 using SharpADB.Helpers;
 using SharpADB.Pages;
 using System;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
+using Windows.Foundation;
 using Windows.Foundation.Metadata;
-using Windows.Security.Authorization.AppCapabilityAccess;
 using Windows.System.Profile;
+using Windows.UI.Core.Preview;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
@@ -26,9 +28,11 @@ namespace SharpADB
         /// </summary>
         public App()
         {
-            this.InitializeComponent();
+            InitializeComponent();
             Suspending += OnSuspending;
             UnhandledException += Application_UnhandledException;
+            LoggerProvider.SetLogProvider(new MetroLoggerFactory());
+            Factories.AdbCommandLineClientFactory = path => new AdbCommandClient(path);
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             if (ApiInformation.IsEnumNamedValuePresent("Windows.UI.Xaml.FocusVisualKind", "Reveal"))
             {
@@ -60,20 +64,19 @@ namespace SharpADB
 
         private void EnsureWindow(IActivatedEventArgs e)
         {
-            if (MainWindow == null)
+            if (!isLoaded)
             {
-                RequestWifiAccess();
                 RegisterExceptionHandlingSynchronizationContext();
-                Communication.InitializeAppServiceConnection();
-                CrossPlatformFunc.RunProcess = ADBHelper.RunProcess;
-                CrossPlatformFunc.CheckFileExists = ADBHelper.CheckFileExists;
-
-                MainWindow = Window.Current;
+                SystemNavigationManagerPreview.GetForCurrentView().CloseRequested += OnCloseRequested;
+                isLoaded = true;
             }
+
+            Window window = Window.Current;
+            WindowHelper.TrackWindow(window);
 
             // 不要在窗口已包含内容时重复应用程序初始化，
             // 只需确保窗口处于活动状态
-            if (MainWindow.Content is not Frame rootFrame)
+            if (window.Content is not Frame rootFrame)
             {
                 CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
 
@@ -88,7 +91,7 @@ namespace SharpADB
                 }
 
                 // 将框架放在当前窗口中
-                Window.Current.Content = rootFrame;
+                window.Content = rootFrame;
 
                 ThemeHelper.Initialize();
             }
@@ -111,7 +114,7 @@ namespace SharpADB
             }
 
             // 确保当前窗口处于活动状态
-            MainWindow.Activate();
+            window.Activate();
         }
 
         /// <summary>
@@ -119,7 +122,7 @@ namespace SharpADB
         /// </summary>
         ///<param name="sender">导航失败的框架</param>
         ///<param name="e">有关导航失败的详细信息</param>
-        private void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
+        private static void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
         {
             throw new Exception("Failed to load Page " + e.SourcePageType.FullName);
         }
@@ -131,46 +134,30 @@ namespace SharpADB
         /// </summary>
         /// <param name="sender">挂起的请求的源。</param>
         /// <param name="e">有关挂起请求的详细信息。</param>
-        private void OnSuspending(object sender, SuspendingEventArgs e)
+        private static void OnSuspending(object sender, SuspendingEventArgs e)
         {
-            var deferral = e.SuspendingOperation.GetDeferral();
+            SuspendingDeferral deferral = e.SuspendingOperation.GetDeferral();
             //TODO: 保存应用程序状态并停止任何后台活动
             deferral.Complete();
         }
 
-        private async void RequestWifiAccess()
+        private static async void OnCloseRequested(object sender, SystemNavigationCloseRequestedPreviewEventArgs e)
         {
-            if (ApiInformation.IsMethodPresent("Windows.Security.Authorization.AppCapabilityAccess.AppCapability", "Create"))
+            Deferral deferral = e.GetDeferral();
+            if (await AdbServer.Instance.GetStatusAsync(default).ContinueWith(x => x.Result.IsRunning).ConfigureAwait(false))
             {
-                AppCapability wifiData = AppCapability.Create("wifiData");
-                switch (wifiData.CheckAccess())
-                {
-                    case AppCapabilityAccessStatus.DeniedByUser:
-                    case AppCapabilityAccessStatus.DeniedBySystem:
-                        // Do something
-                        await wifiData.RequestAccessAsync();
-                        break;
-                }
+                await AdbServer.Instance.StopServerAsync(default).ConfigureAwait(false);
             }
+            deferral.Complete();
         }
 
-        /// <summary>
-        /// Handles connection requests to the app service
-        /// </summary>
-        /// <param name="args">Data about the background activation.</param>
-        protected override void OnBackgroundActivated(BackgroundActivatedEventArgs args)
-        {
-            base.OnBackgroundActivated(args);
-            Communication.OnBackgroundActivated(args);
-        }
-
-        private void Application_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
+        private static void Application_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
         {
             SettingsHelper.LogManager.GetLogger("Unhandled Exception - Application").Error(e.Exception.ExceptionToMessage(), e.Exception);
             e.Handled = true;
         }
 
-        private void CurrentDomain_UnhandledException(object sender, System.UnhandledExceptionEventArgs e)
+        private static void CurrentDomain_UnhandledException(object sender, System.UnhandledExceptionEventArgs e)
         {
             if (e.ExceptionObject is Exception Exception)
             {
@@ -181,19 +168,19 @@ namespace SharpADB
         /// <summary>
         /// Should be called from OnActivated and OnLaunched
         /// </summary>
-        private void RegisterExceptionHandlingSynchronizationContext()
+        private static void RegisterExceptionHandlingSynchronizationContext()
         {
             ExceptionHandlingSynchronizationContext
                 .Register()
                 .UnhandledException += SynchronizationContext_UnhandledException;
         }
 
-        private void SynchronizationContext_UnhandledException(object sender, Helpers.UnhandledExceptionEventArgs e)
+        private static void SynchronizationContext_UnhandledException(object sender, Common.UnhandledExceptionEventArgs e)
         {
             SettingsHelper.LogManager.GetLogger("Unhandled Exception - SynchronizationContext").Error(e.Exception.ExceptionToMessage(), e.Exception);
             e.Handled = true;
         }
 
-        public static Window MainWindow { get; private set; }
+        private bool isLoaded;
     }
 }

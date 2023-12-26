@@ -1,21 +1,17 @@
 ﻿using Microsoft.UI.Xaml.Controls;
-using SharpADB.Helpers;
-using System.Collections.Generic;
 using System;
-using System.Threading.Tasks;
-using Windows.ApplicationModel.Activation;
+using System.Collections.Generic;
+using System.Linq;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.Resources;
 using Windows.Foundation.Metadata;
 using Windows.Phone.UI.Input;
-using Windows.UI.ApplicationSettings;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 using muxc = Microsoft.UI.Xaml.Controls;
-using System.Linq;
 
 // https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x804 上介绍了“空白页”项模板
 
@@ -26,10 +22,10 @@ namespace SharpADB.Pages
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        private readonly List<(string Tag, Type Page)> _pages = new List<(string Tag, Type Page)>
-        {
+        private readonly HashSet<(string Tag, Type Page)> _pages =
+        [
             ("Home", typeof(HomePage)),
-        };
+        ];
 
         public MainPage()
         {
@@ -221,6 +217,5 @@ namespace SharpADB.Pages
                 AppTitlePaddingColumn.Width = new GridLength(4);
             }
         }
-
     }
 }

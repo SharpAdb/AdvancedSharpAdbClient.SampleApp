@@ -1,17 +1,8 @@
-﻿using System;
+﻿using AdvancedSharpAdbClient;
+using AdvancedSharpAdbClient.Models;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI.Xaml;
+using System.Diagnostics;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
 
 // https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
 
@@ -24,7 +15,17 @@ namespace SharpADB.Pages
     {
         public HomePage()
         {
-            this.InitializeComponent();
+            InitializeComponent();
+            Test();
+        }
+
+        private async void Test()
+        {
+            StartServerResult startServerResult = await AdbServer.Instance.StartServerAsync(@"C:\Users\qq251\OneDrive\应用\Win32\platform-tools\adb.exe", false, default);
+            Debug.WriteLine(startServerResult);
+            AdbClient client = new();
+            Debug.WriteLine(await client.GetAdbVersionAsync());
+            IEnumerable<DeviceData> devices = await client.GetDevicesAsync();
         }
     }
 }

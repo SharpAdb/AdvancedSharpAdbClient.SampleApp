@@ -5,7 +5,8 @@
   xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
   xmlns:uap5="http://schemas.microsoft.com/appx/manifest/uap/windows10/5"
-  IgnorableNamespaces="uap uap5 mp">
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap uap5 mp rescap">
 
   <Identity
     Name="719f14b2-1d1c-4bb1-9d8d-e9e5da5269fd"
@@ -16,7 +17,7 @@
 
   <Properties>
     <DisplayName>SharpADB</DisplayName>
-    <PublisherDisplayName>qq251</PublisherDisplayName>
+    <PublisherDisplayName>wherewhere</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
@@ -61,5 +62,7 @@
 
   <Capabilities>
     <Capability Name="internetClient" />
+    <rescap:Capability Name="broadFileSystemAccess" />
+    <rescap:Capability Name="confirmAppClose" />
   </Capabilities>
 </Package>
