@@ -1,0 +1,151 @@
+﻿<Page
+    x:Class="SharpADB.Pages.ScreenPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:SharpADB.Pages"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:AdvancedSharpAdbClient.DeviceCommands.Models"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    xmlns:viewmodels="using:SharpADB.ViewModels"
+    d:DataContext="{d:DesignInstance Type=viewmodels:ScreenViewModel}"
+    DataContext="{x:Bind Provider}"
+    NavigationCacheMode="Enabled"
+    mc:Ignorable="d">
+    <Page.Resources>
+        <DataTemplate x:Key="ElementTreeItemTemplate" x:DataType="models:Element">
+            <muxc:TreeViewItem Content="{x:Bind Class}" ItemsSource="{x:Bind local:ScreenPage.AsElementArray(Children)}" />
+        </DataTemplate>
+    </Page.Resources>
+    <Grid Padding="36,24" RowSpacing="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock
+                Grid.Column="0"
+                Style="{StaticResource TitleTextBlockStyle}"
+                Text="Screen" />
+            <StackPanel
+                Grid.Column="1"
+                Orientation="Horizontal"
+                Spacing="8">
+                <ToggleButton
+                    VerticalAlignment="Center"
+                    Content="Stop"
+                    IsChecked="{x:Bind Provider.IsStopped, Mode=TwoWay}" />
+                <ComboBox
+                    VerticalAlignment="Center"
+                    ItemsSource="{x:Bind Provider.DeviceList, Mode=OneWay}"
+                    SelectedItem="{x:Bind Provider.SelectDevice, Mode=TwoWay}" />
+            </StackPanel>
+        </Grid>
+        <Grid Grid.Row="1" ColumnSpacing="24">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Image
+                Grid.Column="0"
+                Source="{x:Bind Provider.ScreenShot, Mode=OneWay}"
+                Stretch="Uniform" />
+            <Grid Grid.Column="1" RowSpacing="12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <ScrollViewer
+                    Grid.Row="0"
+                    HorizontalScrollBarVisibility="Auto"
+                    HorizontalScrollMode="Auto"
+                    VerticalScrollBarVisibility="Disabled"
+                    VerticalScrollMode="Disabled">
+                    <muxc:TreeView
+                        ItemTemplate="{StaticResource ElementTreeItemTemplate}"
+                        ItemsSource="{x:Bind Provider.Elements, Mode=OneWay}"
+                        SelectedItem="{x:Bind Provider.SelectElement, Mode=TwoWay}" />
+                </ScrollViewer>
+                <ScrollViewer
+                    Grid.Row="1"
+                    HorizontalScrollBarVisibility="Auto"
+                    HorizontalScrollMode="Auto"
+                    VerticalScrollBarVisibility="Auto"
+                    VerticalScrollMode="Auto">
+                    <Grid ColumnSpacing="8" RowSpacing="4">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            Grid.Row="0"
+                            HorizontalAlignment="Left"
+                            Text="Class" />
+                        <TextBlock
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            HorizontalAlignment="Left"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            IsTextSelectionEnabled="True"
+                            Text="{x:Bind Provider.SelectElement.Class, Mode=OneWay, FallbackValue='null'}" />
+                        <TextBlock
+                            Grid.Row="1"
+                            HorizontalAlignment="Left"
+                            Text="Package" />
+                        <TextBlock
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            HorizontalAlignment="Left"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            IsTextSelectionEnabled="True"
+                            Text="{x:Bind Provider.SelectElement.Package, Mode=OneWay, FallbackValue='null'}" />
+                        <TextBlock
+                            Grid.Row="2"
+                            HorizontalAlignment="Left"
+                            Text="Text" />
+                        <TextBlock
+                            Grid.Row="2"
+                            Grid.Column="1"
+                            HorizontalAlignment="Left"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            IsTextSelectionEnabled="True"
+                            Text="{x:Bind Provider.SelectElement.Text, Mode=OneWay, FallbackValue='null'}" />
+                        <TextBlock
+                            Grid.Row="3"
+                            HorizontalAlignment="Left"
+                            Text="Bounds" />
+                        <TextBlock
+                            Grid.Row="3"
+                            Grid.Column="1"
+                            HorizontalAlignment="Left"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            IsTextSelectionEnabled="True"
+                            Text="{x:Bind Provider.SelectElement.Bounds, Mode=OneWay, FallbackValue='null'}" />
+                        <TextBlock
+                            Grid.Row="4"
+                            HorizontalAlignment="Left"
+                            Text="Resource ID" />
+                        <TextBlock
+                            Grid.Row="4"
+                            Grid.Column="1"
+                            HorizontalAlignment="Left"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            IsTextSelectionEnabled="True"
+                            Text="{x:Bind Provider.SelectElement.ResourceID, Mode=OneWay, FallbackValue='null'}" />
+                    </Grid>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
+    </Grid>
+</Page>

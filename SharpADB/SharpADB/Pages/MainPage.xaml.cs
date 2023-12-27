@@ -25,6 +25,7 @@ namespace SharpADB.Pages
         private readonly HashSet<(string Tag, Type Page)> _pages =
         [
             ("Home", typeof(HomePage)),
+            ("Screen", typeof(ScreenPage))
         ];
 
         public MainPage()

@@ -1,8 +1,6 @@
-﻿using AdvancedSharpAdbClient;
-using AdvancedSharpAdbClient.Models;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using SharpADB.ViewModels;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Navigation;
 
 // https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
 
@@ -13,19 +11,20 @@ namespace SharpADB.Pages
     /// </summary>
     public sealed partial class HomePage : Page
     {
-        public HomePage()
+        private readonly HomeViewModel Provider = new();
+
+        public HomePage() => InitializeComponent();
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            InitializeComponent();
-            Test();
+            base.OnNavigatedTo(e);
+            _ = Provider.Refresh();
         }
 
-        private async void Test()
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            StartServerResult startServerResult = await AdbServer.Instance.StartServerAsync(@"C:\Users\qq251\OneDrive\应用\Win32\platform-tools\adb.exe", false, default);
-            Debug.WriteLine(startServerResult);
-            AdbClient client = new();
-            Debug.WriteLine(await client.GetAdbVersionAsync());
-            IEnumerable<DeviceData> devices = await client.GetDevicesAsync();
+            base.OnNavigatedFrom(e);
+            _ = Provider.UnregisterMonitor();
         }
     }
 }

@@ -74,6 +74,8 @@ namespace winrt::SharpADB::Metadata::implementation
         {
             CloseHandle(parentOutputPipeHandle);
             CloseHandle(parentErrorPipeHandle);
+            CloseHandle(childOutputPipeHandle);
+            CloseHandle(childErrorPipeHandle);
             throw GetLastError();
         }
 
@@ -213,6 +215,8 @@ namespace winrt::SharpADB::Metadata::implementation
         {
             CloseHandle(parentOutputPipeHandle);
             CloseHandle(parentErrorPipeHandle);
+            CloseHandle(childOutputPipeHandle);
+            CloseHandle(childErrorPipeHandle);
             throw GetLastError();
         }
 
