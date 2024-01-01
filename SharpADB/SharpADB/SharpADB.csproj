@@ -278,7 +278,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AdvancedSharpAdbClient">
-      <Version>3.0.9-build.357.1</Version>
+      <Version>3.0.9</Version>
     </PackageReference>
     <PackageReference Include="MetroLog">
       <Version>1.0.1</Version>
