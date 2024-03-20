@@ -1,6 +1,5 @@
 ﻿using AdvancedSharpAdbClient;
 using AdvancedSharpAdbClient.Logs;
-using SharpADB.Helpers;
 using SharpADB.Projection;
 using System;
 using System.Collections;
@@ -9,25 +8,18 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.Storage;
 
 namespace SharpADB.Common
 {
     public class AdbCommandClient(string adbPath, bool isForce = false, ILogger<AdbCommandLineClient> logger = null) : AdbCommandLineClient(adbPath, isForce, logger)
     {
-        public override bool CheckFileExists(string adbPath) =>
-            StorageFile.GetFileFromPathAsync(adbPath).AwaitByTaskCompleteSource() is StorageFile file && file.IsOfType(StorageItemTypes.File);
-
-        public override Task<bool> CheckFileExistsAsync(string adbPath, CancellationToken cancellationToken = default) =>
-            StorageFile.GetFileFromPathAsync(adbPath).AsTask(cancellationToken).ContinueWith(x => x.Result != null && x.Result.IsOfType(StorageItemTypes.File));
-
         protected override int RunProcess(string filename, string command, ICollection<string> errorOutput, ICollection<string> standardOutput) =>
             (int)SharpADBProjectionFactory.ServerManager.RunProcess(filename, command, AsVector(errorOutput), AsVector(standardOutput));
 
         protected override Task<int> RunProcessAsync(string filename, string command, ICollection<string> errorOutput, ICollection<string> standardOutput, CancellationToken cancellationToken = default) =>
             SharpADBProjectionFactory.ServerManager.RunProcessAsync(filename, command, AsVector(errorOutput), AsVector(standardOutput)).AsTask(cancellationToken).ContinueWith(x => (int)x.Result);
 
-        private IList<T> AsVector<T>(ICollection<T> collection) => collection switch
+        private static IList<T> AsVector<T>(ICollection<T> collection) => collection switch
         {
             IList<T> list => list,
             not null => new CollectionVector<T>(collection),

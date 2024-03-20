@@ -158,39 +158,19 @@ namespace SharpADB.Pages
         {
             if (NavigationView.DisplayMode == muxc.NavigationViewDisplayMode.Minimal)
             {
-                if (NavigationView.IsPaneToggleButtonVisible)
-                {
-                    if (NavigationView.IsBackButtonVisible != muxc.NavigationViewBackButtonVisible.Collapsed)
-                    {
-                        LeftPaddingColumn.Width = new GridLength(NavigationView.CompactPaneLength * 2 - 8);
-                    }
-                    else
-                    {
-                        LeftPaddingColumn.Width = new GridLength(NavigationView.CompactPaneLength);
-                    }
-                }
-                else
-                {
-                    if (NavigationView.IsBackButtonVisible != muxc.NavigationViewBackButtonVisible.Collapsed)
-                    {
-                        LeftPaddingColumn.Width = new GridLength(NavigationView.CompactPaneLength);
-                    }
-                    else
-                    {
-                        LeftPaddingColumn.Width = new GridLength(0);
-                    }
-                }
+                LeftPaddingColumn.Width = NavigationView.IsPaneToggleButtonVisible
+                    ? NavigationView.IsBackButtonVisible != muxc.NavigationViewBackButtonVisible.Collapsed
+                        ? new GridLength((NavigationView.CompactPaneLength * 2) - 8)
+                        : new GridLength(NavigationView.CompactPaneLength)
+                    : NavigationView.IsBackButtonVisible != muxc.NavigationViewBackButtonVisible.Collapsed
+                        ? new GridLength(NavigationView.CompactPaneLength)
+                        : new GridLength(0);
             }
             else
             {
-                if (NavigationView.IsBackButtonVisible != muxc.NavigationViewBackButtonVisible.Collapsed)
-                {
-                    LeftPaddingColumn.Width = new GridLength(NavigationView.CompactPaneLength);
-                }
-                else
-                {
-                    LeftPaddingColumn.Width = new GridLength(0);
-                }
+                LeftPaddingColumn.Width = NavigationView.IsBackButtonVisible != muxc.NavigationViewBackButtonVisible.Collapsed
+                    ? new GridLength(NavigationView.CompactPaneLength)
+                    : new GridLength(0);
             }
         }
 
@@ -202,21 +182,9 @@ namespace SharpADB.Pages
 
         private void UpdateAppTitleIcon()
         {
-            if (NavigationView.DisplayMode != muxc.NavigationViewDisplayMode.Minimal)
-            {
-                if (NavigationView.IsPaneOpen)
-                {
-                    AppTitlePaddingColumn.Width = new GridLength(4);
-                }
-                else
-                {
-                    AppTitlePaddingColumn.Width = new GridLength(24);
-                }
-            }
-            else
-            {
-                AppTitlePaddingColumn.Width = new GridLength(4);
-            }
+            AppTitlePaddingColumn.Width = NavigationView.DisplayMode != muxc.NavigationViewDisplayMode.Minimal
+                ? NavigationView.IsPaneOpen ? new GridLength(4) : new GridLength(24)
+                : new GridLength(4);
         }
     }
 }

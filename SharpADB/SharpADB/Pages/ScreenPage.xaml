@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:SharpADB.Pages"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:model="using:AdvancedSharpAdbClient.Models"
     xmlns:models="using:AdvancedSharpAdbClient.DeviceCommands.Models"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:viewmodels="using:SharpADB.ViewModels"
@@ -42,7 +43,17 @@
                 <ComboBox
                     VerticalAlignment="Center"
                     ItemsSource="{x:Bind Provider.DeviceList, Mode=OneWay}"
-                    SelectedItem="{x:Bind Provider.SelectDevice, Mode=TwoWay}" />
+                    SelectedItem="{x:Bind Provider.SelectDevice, Mode=TwoWay}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="model:DeviceData">
+                            <TextBlock>
+                                <Run Text="{x:Bind Name}" />
+                                <Run Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind Serial}" />
+                                <Run Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind State}" />
+                            </TextBlock>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
             </StackPanel>
         </Grid>
         <Grid Grid.Row="1" ColumnSpacing="24">

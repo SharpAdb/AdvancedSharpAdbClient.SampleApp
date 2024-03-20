@@ -39,32 +39,32 @@ namespace SharpADB.Common
 
         private static void OnCommandsRequested(SettingsPane sender, SettingsPaneCommandsRequestedEventArgs args)
         {
-        //    ResourceLoader loader = ResourceLoader.GetForViewIndependentUse("SettingsPane");
-        //    args.Request.ApplicationCommands.Add(
-        //        new SettingsCommand(
-        //            "Settings",
-        //            loader.GetString("Settings"),
-        //            async (handler) => new SettingsFlyoutControl { RequestedTheme = await ThemeHelper.GetActualThemeAsync() }.Show()));
-        //    args.Request.ApplicationCommands.Add(
-        //        new SettingsCommand(
-        //            "Feedback",
-        //            loader.GetString("Feedback"),
-        //            (handler) => _ = Launcher.LaunchUriAsync(new Uri("https://github.com/Coolapk-UWP/Coolapk-Lite/issues"))));
-        //    args.Request.ApplicationCommands.Add(
-        //        new SettingsCommand(
-        //            "LogFolder",
-        //            loader.GetString("LogFolder"),
-        //            async (handler) => _ = Launcher.LaunchFolderAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("MetroLogs", CreationCollisionOption.OpenIfExists))));
-        //    args.Request.ApplicationCommands.Add(
-        //        new SettingsCommand(
-        //            "Translate",
-        //            loader.GetString("Translate"),
-        //            (handler) => _ = Launcher.LaunchUriAsync(new Uri("https://crowdin.com/project/CoolapkLite"))));
-        //    args.Request.ApplicationCommands.Add(
-        //        new SettingsCommand(
-        //            "Repository",
-        //            loader.GetString("Repository"),
-        //            (handler) => _ = Launcher.LaunchUriAsync(new Uri("https://github.com/Coolapk-UWP/Coolapk-Lite"))));
+            //    ResourceLoader loader = ResourceLoader.GetForViewIndependentUse("SettingsPane");
+            //    args.Request.ApplicationCommands.Add(
+            //        new SettingsCommand(
+            //            "Settings",
+            //            loader.GetString("Settings"),
+            //            async (handler) => new SettingsFlyoutControl { RequestedTheme = await ThemeHelper.GetActualThemeAsync() }.Show()));
+            //    args.Request.ApplicationCommands.Add(
+            //        new SettingsCommand(
+            //            "Feedback",
+            //            loader.GetString("Feedback"),
+            //            (handler) => _ = Launcher.LaunchUriAsync(new Uri("https://github.com/Coolapk-UWP/Coolapk-Lite/issues"))));
+            //    args.Request.ApplicationCommands.Add(
+            //        new SettingsCommand(
+            //            "LogFolder",
+            //            loader.GetString("LogFolder"),
+            //            async (handler) => _ = Launcher.LaunchFolderAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("MetroLogs", CreationCollisionOption.OpenIfExists))));
+            //    args.Request.ApplicationCommands.Add(
+            //        new SettingsCommand(
+            //            "Translate",
+            //            loader.GetString("Translate"),
+            //            (handler) => _ = Launcher.LaunchUriAsync(new Uri("https://crowdin.com/project/CoolapkLite"))));
+            //    args.Request.ApplicationCommands.Add(
+            //        new SettingsCommand(
+            //            "Repository",
+            //            loader.GetString("Repository"),
+            //            (handler) => _ = Launcher.LaunchUriAsync(new Uri("https://github.com/Coolapk-UWP/Coolapk-Lite"))));
         }
 
         private static void Dispatcher_AcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs args)

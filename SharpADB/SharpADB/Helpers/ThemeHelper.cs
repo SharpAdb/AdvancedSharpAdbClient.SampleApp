@@ -210,7 +210,7 @@ namespace SharpADB.Helpers
                     : ActualTheme == ElementTheme.Dark;
         }
 
-        public static bool IsColorLight(this Color color) => 5 * color.G + 2 * color.R + color.B > 8 * 128;
+        public static bool IsColorLight(this Color color) => (5 * color.G) + (2 * color.R) + color.B > 8 * 128;
 
         public static void UpdateExtendViewIntoTitleBar(bool IsExtendsTitleBar)
         {

@@ -2,7 +2,6 @@
 using AdvancedSharpAdbClient.DeviceCommands;
 using AdvancedSharpAdbClient.DeviceCommands.Models;
 using AdvancedSharpAdbClient.Models;
-using AdvancedSharpAdbClient.Polyfills;
 using SharpADB.Common;
 using SharpADB.Helpers;
 using System;
@@ -125,7 +124,7 @@ namespace SharpADB.ViewModels
                 }
 
                 AdbClient adbClient = new();
-                DeviceList = await adbClient.GetDevicesAsync(default).ToArrayAsync();
+                DeviceList = await adbClient.GetDevicesAsync().ContinueWith(x => x.Result.ToArray());
                 await RegisterMonitor();
 
                 manualResetEvent ??= new(true);
@@ -175,7 +174,7 @@ namespace SharpADB.ViewModels
         private async void OnDeviceListChanged(object sender, DeviceDataNotifyEventArgs e)
         {
             AdbClient adbClient = new();
-            DeviceList = await adbClient.GetDevicesAsync(default).ToArrayAsync();
+            DeviceList = await adbClient.GetDevicesAsync().ContinueWith(x => x.Result.ToArray());
         }
 
         private void OnSelectDeviceChanged(DeviceData deviceData)

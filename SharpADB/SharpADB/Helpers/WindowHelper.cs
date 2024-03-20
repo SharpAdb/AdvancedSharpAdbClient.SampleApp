@@ -1,5 +1,6 @@
 ﻿using Microsoft.Toolkit.Uwp;
 using Microsoft.Toolkit.Uwp.Helpers;
+using SharpADB.Common;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -9,7 +10,6 @@ using Windows.Foundation.Metadata;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
-using SharpADB.Common;
 
 namespace SharpADB.Helpers
 {

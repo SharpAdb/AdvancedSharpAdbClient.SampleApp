@@ -1,6 +1,5 @@
 ﻿using AdvancedSharpAdbClient;
 using AdvancedSharpAdbClient.Models;
-using AdvancedSharpAdbClient.Polyfills;
 using SharpADB.Common;
 using SharpADB.Helpers;
 using System;
@@ -9,7 +8,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Windows.System;
-using Windows.UI.Xaml.Media.Imaging;
 
 namespace SharpADB.ViewModels
 {
@@ -70,7 +68,7 @@ namespace SharpADB.ViewModels
 
                 if (!status.IsRunning)
                 {
-                    if (await AdbServer.Instance.StartServerAsync(@"C:\Users\qq251\OneDrive\应用\Win32\platform-tools\adb.exe", false, default).ConfigureAwait(false)
+                    if (await AdbServer.Instance.StartServerAsync("adb", false, default).ConfigureAwait(false)
                         is not StartServerResult.Started or StartServerResult.AlreadyRunning)
                     {
                         return;
@@ -80,7 +78,7 @@ namespace SharpADB.ViewModels
                 }
 
                 AdbClient adbClient = new();
-                DeviceList = await adbClient.GetDevicesAsync(default).ToArrayAsync();
+                DeviceList = await adbClient.GetDevicesAsync().ContinueWith(x => x.Result.ToArray());
                 await RegisterMonitor();
             }
             catch (Exception ex)
@@ -110,7 +108,7 @@ namespace SharpADB.ViewModels
         private async void OnDeviceListChanged(object sender, DeviceDataNotifyEventArgs e)
         {
             AdbClient adbClient = new();
-            DeviceList = await adbClient.GetDevicesAsync(default).ToArrayAsync();
+            DeviceList = await adbClient.GetDevicesAsync().ContinueWith(x => x.Result.ToArray());
         }
     }
 }
