@@ -1,4 +1,4 @@
-﻿using Microsoft.Toolkit.Uwp;
+﻿using CommunityToolkit.WinUI;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -22,15 +22,8 @@ namespace SharpADB.Common
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="collection"/> is null.</exception>
         public static void AddRange<TSource>(this ICollection<TSource> source, IEnumerable<TSource> collection)
         {
-            if (source == null)
-            {
-                throw new ArgumentNullException(nameof(source));
-            }
-
-            if (collection == null)
-            {
-                throw new ArgumentNullException(nameof(collection));
-            }
+            ArgumentNullException.ThrowIfNull(source);
+            ArgumentNullException.ThrowIfNull(collection);
 
             if (source is List<TSource> list)
             {
@@ -44,7 +37,7 @@ namespace SharpADB.Common
                     int _size = Array.FindLastIndex(array, (x) => x != null) + 1;
                     if (array.Length - _size < count)
                     {
-                        throw new ArgumentOutOfRangeException(nameof(array));
+                        throw new ArgumentOutOfRangeException(nameof(source));
                     }
 
                     if (collection is ICollection<TSource> c)
@@ -87,15 +80,8 @@ namespace SharpADB.Common
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="collection"/> is null.</exception>
         public static async Task AddRangeAsync<TCollection, TSource>(this TCollection source, IEnumerable<TSource> collection, DispatcherQueue dispatcherQueue) where TCollection : ICollection<TSource>, INotifyCollectionChanged
         {
-            if (source == null)
-            {
-                throw new ArgumentNullException(nameof(source));
-            }
-
-            if (collection == null)
-            {
-                throw new ArgumentNullException(nameof(collection));
-            }
+            ArgumentNullException.ThrowIfNull(source);
+            ArgumentNullException.ThrowIfNull(collection);
 
             if (source is List<TSource> list)
             {
@@ -110,7 +96,7 @@ namespace SharpADB.Common
                     int _size = Array.FindLastIndex(array, (x) => x != null) + 1;
                     if (array.Length - _size < count)
                     {
-                        throw new ArgumentOutOfRangeException(nameof(array));
+                        throw new ArgumentOutOfRangeException(nameof(source));
                     }
 
                     await dispatcherQueue.ResumeForegroundAsync();
@@ -150,15 +136,8 @@ namespace SharpADB.Common
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="action"/> is null.</exception>
         public static void ForEach<TSource>(this IEnumerable<TSource> source, Action<TSource> action)
         {
-            if (source == null)
-            {
-                throw new ArgumentNullException(nameof(source));
-            }
-
-            if (action == null)
-            {
-                throw new ArgumentNullException(nameof(action));
-            }
+            ArgumentNullException.ThrowIfNull(source);
+            ArgumentNullException.ThrowIfNull(action);
 
             if (source is List<TSource> list)
             {

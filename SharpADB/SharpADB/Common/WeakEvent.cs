@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace SharpADB.Common
 {
-    public class WeakEvent<TEventArgs> : IList<Action<TEventArgs>>
+    public partial class WeakEvent<TEventArgs> : IList<Action<TEventArgs>>
     {
         private class Method(Action<TEventArgs> callback) : IEquatable<Method>, IEquatable<Action<TEventArgs>>
         {
@@ -20,7 +20,7 @@ namespace SharpADB.Common
             {
                 if (!IsDead)
                 {
-                    _method.Invoke(_reference.Target, [arg]);
+                    _ = _method.Invoke(_reference.Target, [arg]);
                 }
             }
 
@@ -34,30 +34,29 @@ namespace SharpADB.Common
                     && _reference.Target == callback.Target
                     && _method == callback.GetMethodInfo();
 
-            public override bool Equals(object obj)
+            public override bool Equals(object obj) => obj switch
             {
-                return obj switch
-                {
-                    Method other => Equals(other),
-                    Action<TEventArgs> callback => Equals(callback),
-                    _ => false,
-                };
-            }
+                Method other => Equals(other),
+                Action<TEventArgs> callback => Equals(callback),
+                _ => false,
+            };
 
             public override int GetHashCode() => (_reference, _method).GetHashCode();
 
             public static implicit operator Method(Action<TEventArgs> callback) => new(callback);
 
-            public static explicit operator Action<TEventArgs>(Method method) => method.IsDead ? null : method._method.CreateDelegate(typeof(Action<TEventArgs>), method._reference.Target) as Action<TEventArgs>;
+            public static explicit operator Action<TEventArgs>(Method method) => method.IsDead ? null : method._method.CreateDelegate<Action<TEventArgs>>(method._reference.Target);
         }
 
         private readonly List<Method> _list;
 
         public WeakEvent() => _list = [];
 
-        public WeakEvent(IEnumerable<Action<TEventArgs>> collection) => _list = new List<Method>(collection.Select<Action<TEventArgs>, Method>(x => x));
+        public WeakEvent(IEnumerable<Action<TEventArgs>> collection) => _list = [.. collection.Select<Action<TEventArgs>, Method>(x => x)];
 
         public WeakEvent(int capacity) => _list = new List<Method>(capacity);
+
+        public WeakEvent(ReadOnlySpan<Action<TEventArgs>> callbacks) => _list = [.. callbacks];
 
         public int Count => _list.Count;
 

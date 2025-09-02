@@ -5,12 +5,13 @@
   xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
   xmlns:uap5="http://schemas.microsoft.com/appx/manifest/uap/windows10/5"
+  xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
-  IgnorableNamespaces="uap uap5 mp rescap">
+  IgnorableNamespaces="uap uap5 mp com rescap">
 
   <Identity
-    Name="719f14b2-1d1c-4bb1-9d8d-e9e5da5269fd"
-    Publisher="CN=qq251"
+    Name="wherewhere.SharpADB"
+    Publisher="CN=where"
     Version="1.0.0.0" />
 
   <mp:PhoneIdentity PhoneProductId="719f14b2-1d1c-4bb1-9d8d-e9e5da5269fd" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
@@ -57,12 +58,37 @@
           <uap:Rotation Preference="landscapeFlipped"/>
         </uap:InitialRotationPreference>
       </uap:VisualElements>
+      <Extensions>
+        <com:Extension Category="windows.comServer">
+          <com:ComServer>
+            <com:ExeServer
+              Executable="SharpADB.exe"
+              Arguments="-RegisterProcessAsComServer"
+              DisplayName="SharpADB Server"
+              LaunchAndActivationPermission="O:SYG:SYD:(A;;11;;;WD)(A;;11;;;RC)(A;;11;;;AC)(A;;11;;;AN)S:P(ML;;NX;;;S-1-16-0)">
+              <com:Class Id ="88B86807-0897-4061-AC3A-6F91F9ED4896" DisplayName="SharpADB Server" />
+            </com:ExeServer>
+          </com:ComServer>
+        </com:Extension>
+      </Extensions>
     </Application>
   </Applications>
+
+  <Extensions>
+    <Extension Category="windows.activatableClass.outOfProcessServer">
+      <OutOfProcessServer ServerName="wherewhere.SelfCOMServer.Server">
+        <Path>SharpADB.exe</Path>
+        <Arguments>-RegisterProcessAsWinRTServer</Arguments>
+        <Instancing>singleInstance</Instancing>
+        <ActivatableClass ActivatableClassId="SharpADB.Server" />
+      </OutOfProcessServer>
+    </Extension>
+  </Extensions>
 
   <Capabilities>
     <Capability Name="internetClient" />
     <rescap:Capability Name="broadFileSystemAccess" />
     <rescap:Capability Name="confirmAppClose" />
+    <rescap:Capability Name="runFullTrust" />
   </Capabilities>
 </Package>

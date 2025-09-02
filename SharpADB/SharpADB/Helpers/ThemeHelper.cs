@@ -1,5 +1,5 @@
-﻿using Microsoft.Toolkit.Uwp.Helpers;
-using SharpADB.Common;
+﻿using SharpADB.Common;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
@@ -21,7 +21,19 @@ namespace SharpADB.Helpers
         public static UISettings UISettings { get; } = new UISettings();
         public static AccessibilitySettings AccessibilitySettings { get; } = new AccessibilitySettings();
 
-        public static WeakEvent<bool> UISettingChanged { get; } = [];
+        #region UISettingChanged
+
+        private static readonly WeakEvent<ApplicationTheme> actions = [];
+
+        public static event Action<ApplicationTheme> UISettingChanged
+        {
+            add => actions.Add(value);
+            remove => actions.Remove(value);
+        }
+
+        private static void InvokeUISettingChanged(ApplicationTheme value) => actions.Invoke(value);
+
+        #endregion
 
         #region ActualTheme
 
@@ -126,7 +138,7 @@ namespace SharpADB.Helpers
 
             SettingsHelper.Set(SettingsHelper.SelectedAppTheme, value);
             UpdateSystemCaptionButtonColors();
-            UISettingChanged.Invoke(await IsDarkThemeAsync());
+            InvokeUISettingChanged(await IsDarkThemeAsync() ? ApplicationTheme.Dark : ApplicationTheme.Light);
         }
 
         public static async Task SetRootThemeAsync(ElementTheme value)
@@ -142,7 +154,7 @@ namespace SharpADB.Helpers
 
             SettingsHelper.Set(SettingsHelper.SelectedAppTheme, value);
             UpdateSystemCaptionButtonColors();
-            UISettingChanged.Invoke(await IsDarkThemeAsync());
+            InvokeUISettingChanged(await IsDarkThemeAsync() ? ApplicationTheme.Dark : ApplicationTheme.Light);
         }
 
         #endregion
@@ -173,7 +185,7 @@ namespace SharpADB.Helpers
         private static async void UISettings_ColorValuesChanged(UISettings sender, object args)
         {
             UpdateSystemCaptionButtonColors();
-            UISettingChanged.Invoke(await IsDarkThemeAsync());
+            InvokeUISettingChanged(await IsDarkThemeAsync() ? ApplicationTheme.Dark : ApplicationTheme.Light);
         }
 
         public static bool IsDarkTheme()
@@ -232,21 +244,11 @@ namespace SharpADB.Helpers
             WindowHelper.ActiveWindows.Values.ForEach(async (window) =>
             {
                 await window.Dispatcher.ResumeForegroundAsync();
-                if (UIHelper.HasStatusBar)
-                {
-                    StatusBar StatusBar = StatusBar.GetForCurrentView();
-                    StatusBar.ForegroundColor = ForegroundColor;
-                    StatusBar.BackgroundColor = BackgroundColor;
-                    StatusBar.BackgroundOpacity = 0; // 透明度
-                }
-                else
-                {
-                    bool ExtendViewIntoTitleBar = CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar;
-                    ApplicationViewTitleBar TitleBar = ApplicationView.GetForCurrentView().TitleBar;
-                    TitleBar.ForegroundColor = TitleBar.ButtonForegroundColor = ForegroundColor;
-                    TitleBar.BackgroundColor = TitleBar.InactiveBackgroundColor = BackgroundColor;
-                    TitleBar.ButtonBackgroundColor = TitleBar.ButtonInactiveBackgroundColor = ExtendViewIntoTitleBar ? Colors.Transparent : BackgroundColor;
-                }
+                bool ExtendViewIntoTitleBar = CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar;
+                ApplicationViewTitleBar TitleBar = ApplicationView.GetForCurrentView().TitleBar;
+                TitleBar.ForegroundColor = TitleBar.ButtonForegroundColor = ForegroundColor;
+                TitleBar.BackgroundColor = TitleBar.InactiveBackgroundColor = BackgroundColor;
+                TitleBar.ButtonBackgroundColor = TitleBar.ButtonInactiveBackgroundColor = ExtendViewIntoTitleBar ? Colors.Transparent : BackgroundColor;
             });
         }
 
@@ -260,21 +262,11 @@ namespace SharpADB.Helpers
             Color ForegroundColor = IsDark || IsHighContrast ? Colors.White : Colors.Black;
             Color BackgroundColor = IsHighContrast ? Color.FromArgb(255, 0, 0, 0) : IsDark ? Color.FromArgb(255, 32, 32, 32) : Color.FromArgb(255, 243, 243, 243);
 
-            if (UIHelper.HasStatusBar)
-            {
-                StatusBar StatusBar = StatusBar.GetForCurrentView();
-                StatusBar.ForegroundColor = ForegroundColor;
-                StatusBar.BackgroundColor = BackgroundColor;
-                StatusBar.BackgroundOpacity = 0; // 透明度
-            }
-            else
-            {
-                bool ExtendViewIntoTitleBar = CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar;
-                ApplicationViewTitleBar TitleBar = ApplicationView.GetForCurrentView().TitleBar;
-                TitleBar.ForegroundColor = TitleBar.ButtonForegroundColor = ForegroundColor;
-                TitleBar.BackgroundColor = TitleBar.InactiveBackgroundColor = BackgroundColor;
-                TitleBar.ButtonBackgroundColor = TitleBar.ButtonInactiveBackgroundColor = ExtendViewIntoTitleBar ? Colors.Transparent : BackgroundColor;
-            }
+            bool ExtendViewIntoTitleBar = CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar;
+            ApplicationViewTitleBar TitleBar = ApplicationView.GetForCurrentView().TitleBar;
+            TitleBar.ForegroundColor = TitleBar.ButtonForegroundColor = ForegroundColor;
+            TitleBar.BackgroundColor = TitleBar.InactiveBackgroundColor = BackgroundColor;
+            TitleBar.ButtonBackgroundColor = TitleBar.ButtonInactiveBackgroundColor = ExtendViewIntoTitleBar ? Colors.Transparent : BackgroundColor;
         }
     }
 }

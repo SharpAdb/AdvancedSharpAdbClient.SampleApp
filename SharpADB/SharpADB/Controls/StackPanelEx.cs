@@ -10,7 +10,7 @@ namespace SharpADB.Controls
     /// Arranges child elements into a single line that can be oriented horizontally
     /// or vertically.
     /// </summary>
-    public class StackPanelEx : Panel
+    public partial class StackPanelEx : Panel
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="StackPanelEx"/> class.

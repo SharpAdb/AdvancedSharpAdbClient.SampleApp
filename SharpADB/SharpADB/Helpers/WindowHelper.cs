@@ -1,8 +1,8 @@
-﻿using Microsoft.Toolkit.Uwp;
-using Microsoft.Toolkit.Uwp.Helpers;
+﻿using CommunityToolkit.WinUI;
 using SharpADB.Common;
 using System;
 using System.Collections.Generic;
+using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Foundation;
@@ -22,8 +22,11 @@ namespace SharpADB.Helpers
     /// </summary>
     public static class WindowHelper
     {
-        public static bool IsAppWindowSupported { get; } = ApiInformation.IsTypePresent("Windows.UI.WindowManagement.AppWindow");
-        public static bool IsXamlRootSupported { get; } = ApiInformation.IsPropertyPresent("Windows.UI.Xaml.UIElement", "XamlRoot");
+        [SupportedOSPlatformGuard("Windows10.0.18362.0")]
+        public static bool IsAppWindowSupported { get; } = UIHelper.IsWindows10OrGreater && ApiInformation.IsTypePresent("Windows.UI.WindowManagement.AppWindow");
+
+        [SupportedOSPlatformGuard("Windows10.0.18362.0")]
+        public static bool IsXamlRootSupported { get; } = UIHelper.IsWindows10OrGreater && ApiInformation.IsPropertyPresent("Windows.UI.Xaml.UIElement", "XamlRoot");
 
         public static async Task<bool> CreateWindowAsync(Action<Window> launched)
         {

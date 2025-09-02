@@ -2,6 +2,7 @@
 using AdvancedSharpAdbClient.DeviceCommands;
 using AdvancedSharpAdbClient.DeviceCommands.Models;
 using AdvancedSharpAdbClient.Models;
+using Microsoft.Extensions.Logging;
 using SharpADB.Common;
 using SharpADB.Helpers;
 using System;
@@ -15,7 +16,7 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace SharpADB.ViewModels
 {
-    public class ScreenViewModel : INotifyPropertyChanged
+    public partial class ScreenViewModel : INotifyPropertyChanged
     {
         private Task loopTask;
         private ManualResetEventSlim manualResetEvent = new(true);
@@ -133,7 +134,7 @@ namespace SharpADB.ViewModels
             }
             catch (Exception ex)
             {
-                SettingsHelper.LogManager.GetLogger(nameof(HomeViewModel)).Error(ex.ExceptionToMessage());
+                SettingsHelper.LoggerFactory.CreateLogger<ScreenViewModel>().LogError(ex, "Failed to refresh manager page. {message} (0x{hResult:X})", ex.GetMessage(), ex.HResult);
                 return;
             }
             finally
@@ -179,7 +180,7 @@ namespace SharpADB.ViewModels
 
         private void OnSelectDeviceChanged(DeviceData deviceData)
         {
-            if (isStopped || deviceData == null)
+            if (isStopped || deviceData.IsEmpty)
             {
                 manualResetEvent.Reset();
             }
@@ -198,9 +199,9 @@ namespace SharpADB.ViewModels
             {
                 try
                 {
-                    if (selectDevice == null)
+                    if (selectDevice.IsEmpty)
                     {
-                        manualResetEvent.Reset();
+                        manualResetEvent?.Reset();
                         continue;
                     }
                     else
@@ -214,17 +215,17 @@ namespace SharpADB.ViewModels
                         if (framebuffer != null)
                         {
                             await framebuffer.RefreshAsync(true, cancellationToken);
-                            Task.WaitAll(
+                            await Task.WhenAll(
                                 framebuffer.ToBitmapAsync(Dispatcher, cancellationToken).ContinueWith(x => ScreenShot = x.Result),
-                                adbClient.FindElementsAsync(selectDevice).ContinueWith(x => Elements = x.Result.ToArray()));
+                                adbClient.FindElementsAsync(selectDevice, cancellationToken: cancellationToken).ContinueWith(x => Elements = [.. x.Result]));
                             GC.Collect();
                         }
                     }
-                    manualResetEvent.Wait();
+                    manualResetEvent.Wait(cancellationToken);
                 }
                 catch (Exception ex)
                 {
-                    SettingsHelper.LogManager.GetLogger(nameof(ScreenViewModel)).Error(ex.ExceptionToMessage());
+                    SettingsHelper.LoggerFactory.CreateLogger<ScreenViewModel>().LogError(ex, "Failed to update loop. {message} (0x{hResult:X})", ex.GetMessage(), ex.HResult);
                 }
             }
             while (!cancellationToken.IsCancellationRequested);

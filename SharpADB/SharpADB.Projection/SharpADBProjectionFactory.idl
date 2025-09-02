@@ -1,9 +1,0 @@
-namespace SharpADB.Projection
-{
-    [default_interface]
-    [contract(SharpADB.Metadata.SharpADBContract, 1)]
-    runtimeclass SharpADBProjectionFactory
-    {
-        static SharpADB.Metadata.ServerManager ServerManager { get; };
-    }
-}

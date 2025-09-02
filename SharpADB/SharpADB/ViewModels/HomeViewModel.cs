@@ -1,5 +1,6 @@
 ﻿using AdvancedSharpAdbClient;
 using AdvancedSharpAdbClient.Models;
+using Microsoft.Extensions.Logging;
 using SharpADB.Common;
 using SharpADB.Helpers;
 using System;
@@ -11,7 +12,7 @@ using Windows.System;
 
 namespace SharpADB.ViewModels
 {
-    public class HomeViewModel : INotifyPropertyChanged
+    public partial class HomeViewModel : INotifyPropertyChanged
     {
         public DispatcherQueue Dispatcher { get; } = DispatcherQueue.GetForCurrentThread();
 
@@ -83,7 +84,7 @@ namespace SharpADB.ViewModels
             }
             catch (Exception ex)
             {
-                SettingsHelper.LogManager.GetLogger(nameof(HomeViewModel)).Error(ex.ExceptionToMessage());
+                SettingsHelper.LoggerFactory.CreateLogger<HomeViewModel>().LogError(ex, "Failed to refresh home page. {message} (0x{hResult:X})", ex.GetMessage(), ex.HResult);
                 return;
             }
             finally

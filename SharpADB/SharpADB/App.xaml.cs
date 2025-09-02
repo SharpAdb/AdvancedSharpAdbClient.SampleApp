@@ -1,5 +1,6 @@
 ﻿using AdvancedSharpAdbClient;
 using AdvancedSharpAdbClient.Logs;
+using Microsoft.Extensions.Logging;
 using SharpADB.Common;
 using SharpADB.Helpers;
 using SharpADB.Pages;
@@ -153,31 +154,38 @@ namespace SharpADB
 
         private static void Application_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
         {
-            SettingsHelper.LogManager.GetLogger("Unhandled Exception - Application").Error(e.Exception.ExceptionToMessage(), e.Exception);
+            if (e.Exception is Exception ex)
+            {
+                SettingsHelper.LoggerFactory.CreateLogger("Unhandled Exception - Application").LogError(ex, "Unhandled exception. {message} (0x{hResult:X})", ex.GetMessage(), ex.HResult);
+            }
             e.Handled = true;
         }
 
         private static void CurrentDomain_UnhandledException(object sender, System.UnhandledExceptionEventArgs e)
         {
-            if (e.ExceptionObject is Exception Exception)
+            if (e.ExceptionObject is Exception ex)
             {
-                SettingsHelper.LogManager.GetLogger("Unhandled Exception - CurrentDomain").Error(Exception.ExceptionToMessage(), Exception);
+                SettingsHelper.LoggerFactory.CreateLogger("Unhandled Exception - CurrentDomain").LogError(ex, "Unhandled exception. {message} (0x{hResult:X})", ex.GetMessage(), ex.HResult);
             }
         }
 
         /// <summary>
-        /// Should be called from OnActivated and OnLaunched
+        /// Should be called from OnActivated and OnLaunched.
         /// </summary>
         private static void RegisterExceptionHandlingSynchronizationContext()
         {
-            ExceptionHandlingSynchronizationContext
-                .Register()
-                .UnhandledException += SynchronizationContext_UnhandledException;
+            if (ExceptionHandlingSynchronizationContext.TryRegister(out ExceptionHandlingSynchronizationContext context))
+            {
+                context.UnhandledException += SynchronizationContext_UnhandledException;
+            }
         }
 
         private static void SynchronizationContext_UnhandledException(object sender, Common.UnhandledExceptionEventArgs e)
         {
-            SettingsHelper.LogManager.GetLogger("Unhandled Exception - SynchronizationContext").Error(e.Exception.ExceptionToMessage(), e.Exception);
+            if (e.Exception is Exception ex)
+            {
+                SettingsHelper.LoggerFactory.CreateLogger("Unhandled Exception - SynchronizationContext").LogError(ex, "Unhandled exception. {message} (0x{hResult:X})", ex.GetMessage(), ex.HResult);
+            }
             e.Handled = true;
         }
 

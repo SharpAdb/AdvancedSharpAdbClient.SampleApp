@@ -5,13 +5,22 @@ using System.Linq;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.Resources;
 using Windows.Foundation.Metadata;
-using Windows.Phone.UI.Input;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
-using muxc = Microsoft.UI.Xaml.Controls;
+#region using muxc = Microsoft.UI.Xaml.Controls;
+using NavigationView = Microsoft.UI.Xaml.Controls.NavigationView;
+using NavigationViewBackButtonVisible = Microsoft.UI.Xaml.Controls.NavigationViewBackButtonVisible;
+using NavigationViewBackRequestedEventArgs = Microsoft.UI.Xaml.Controls.NavigationViewBackRequestedEventArgs;
+using NavigationViewDisplayMode = Microsoft.UI.Xaml.Controls.NavigationViewDisplayMode;
+using NavigationViewDisplayModeChangedEventArgs = Microsoft.UI.Xaml.Controls.NavigationViewDisplayModeChangedEventArgs;
+using NavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
+using NavigationViewItemInvokedEventArgs = Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs;
+using NavigationViewPaneClosingEventArgs = Microsoft.UI.Xaml.Controls.NavigationViewPaneClosingEventArgs;
+using NavigationViewPaneDisplayMode = Microsoft.UI.Xaml.Controls.NavigationViewPaneDisplayMode;
+#endregion
 
 // https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x804 上介绍了“空白页”项模板
 
@@ -31,7 +40,7 @@ namespace SharpADB.Pages
         public MainPage()
         {
             InitializeComponent();
-            NavigationView.PaneDisplayMode = muxc.NavigationViewPaneDisplayMode.Left;
+            NavigationView.PaneDisplayMode = NavigationViewPaneDisplayMode.Left;
             if (ApiInformation.IsMethodPresent("Windows.UI.Composition.Compositor", "TryCreateBlurredWallpaperBackdropBrush")) { BackdropMaterial.SetApplyToRootOrPageBackground(this, true); }
         }
 
@@ -39,8 +48,6 @@ namespace SharpADB.Pages
         {
             base.OnNavigatedTo(e);
             Window.Current?.SetTitleBar(DragRegion);
-            if (ApiInformation.IsTypePresent("Windows.Phone.UI.Input.HardwareButtons"))
-            { HardwareButtons.BackPressed += System_BackPressed; }
             SystemNavigationManager.GetForCurrentView().BackRequested += System_BackRequested;
             CoreApplication.GetCurrentView().TitleBar.LayoutMetricsChanged += TitleBar_LayoutMetricsChanged;
             AppTitleText.Text = ResourceLoader.GetForViewIndependentUse().GetString("AppName") ?? "SharpADB";
@@ -48,8 +55,8 @@ namespace SharpADB.Pages
 
         private void NavigationView_Loaded(object sender, RoutedEventArgs e)
         {
-            NavigationView.SelectedItem = NavigationView.MenuItems[0];
-            NavigationView.PaneDisplayMode = muxc.NavigationViewPaneDisplayMode.Auto;
+            NavigationView_Navigate("Home", new EntranceNavigationTransitionInfo());
+            NavigationView.PaneDisplayMode = NavigationViewPaneDisplayMode.Auto;
         }
 
         private void TitleBar_LayoutMetricsChanged(CoreApplicationViewTitleBar sender, object args)
@@ -57,17 +64,17 @@ namespace SharpADB.Pages
             UpdateAppTitle(sender);
         }
 
-        private void NavigationViewControl_PaneClosing(muxc.NavigationView sender, muxc.NavigationViewPaneClosingEventArgs args)
+        private void NavigationViewControl_PaneClosing(NavigationView sender, NavigationViewPaneClosingEventArgs args)
         {
             UpdateAppTitleIcon();
         }
 
-        private void NavigationViewControl_PaneOpening(muxc.NavigationView sender, object args)
+        private void NavigationViewControl_PaneOpening(NavigationView sender, object args)
         {
             UpdateAppTitleIcon();
         }
 
-        private void NavigationViewControl_DisplayModeChanged(muxc.NavigationView sender, muxc.NavigationViewDisplayModeChangedEventArgs args)
+        private void NavigationViewControl_DisplayModeChanged(NavigationView sender, NavigationViewDisplayModeChangedEventArgs args)
         {
             UpdateLeftPaddingColumn();
             UpdateAppTitleIcon();
@@ -90,26 +97,18 @@ namespace SharpADB.Pages
             }
         }
 
-        private void NavigationView_BackRequested(muxc.NavigationView sender, muxc.NavigationViewBackRequestedEventArgs args) => _ = TryGoBack();
+        private void NavigationView_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args) => _ = TryGoBack();
 
-        private void NavigationView_SelectionChanged(muxc.NavigationView sender, muxc.NavigationViewSelectionChangedEventArgs args)
+        private void NavigationView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
         {
-            if (args.SelectedItemContainer != null)
+            if (args.InvokedItemContainer != null)
             {
-                string NavItemTag = args.SelectedItemContainer.Tag.ToString();
+                string NavItemTag = args.InvokedItemContainer.Tag.ToString();
                 NavigationView_Navigate(NavItemTag, args.RecommendedNavigationTransitionInfo);
             }
         }
 
         private void System_BackRequested(object sender, BackRequestedEventArgs e)
-        {
-            if (!e.Handled)
-            {
-                e.Handled = TryGoBack();
-            }
-        }
-
-        private void System_BackPressed(object sender, BackPressedEventArgs e)
         {
             if (!e.Handled)
             {
@@ -125,11 +124,11 @@ namespace SharpADB.Pages
                 (string Tag, Type Page) item = _pages.FirstOrDefault(p => p.Page == e.SourcePageType);
                 if (item.Tag != null)
                 {
-                    muxc.NavigationViewItem SelectedItem = NavigationView.MenuItems
-                        .OfType<muxc.NavigationViewItem>()
+                    NavigationViewItem SelectedItem = NavigationView.MenuItems
+                        .OfType<NavigationViewItem>()
                         .FirstOrDefault(n => n.Tag.Equals(item.Tag))
                             ?? NavigationView.FooterMenuItems
-                                .OfType<muxc.NavigationViewItem>()
+                                .OfType<NavigationViewItem>()
                                 .FirstOrDefault(n => n.Tag.Equals(item.Tag));
                     NavigationView.SelectedItem = SelectedItem;
                 }
@@ -146,8 +145,8 @@ namespace SharpADB.Pages
 
             // Don't go back if the nav pane is overlayed.
             if (NavigationView.IsPaneOpen &&
-                (NavigationView.DisplayMode == muxc.NavigationViewDisplayMode.Compact ||
-                 NavigationView.DisplayMode == muxc.NavigationViewDisplayMode.Minimal))
+                (NavigationView.DisplayMode == NavigationViewDisplayMode.Compact ||
+                 NavigationView.DisplayMode == NavigationViewDisplayMode.Minimal))
             { return false; }
 
             NavigationViewFrame.GoBack();
@@ -156,19 +155,19 @@ namespace SharpADB.Pages
 
         private void UpdateLeftPaddingColumn()
         {
-            if (NavigationView.DisplayMode == muxc.NavigationViewDisplayMode.Minimal)
+            if (NavigationView.DisplayMode == NavigationViewDisplayMode.Minimal)
             {
                 LeftPaddingColumn.Width = NavigationView.IsPaneToggleButtonVisible
-                    ? NavigationView.IsBackButtonVisible != muxc.NavigationViewBackButtonVisible.Collapsed
+                    ? NavigationView.IsBackButtonVisible != NavigationViewBackButtonVisible.Collapsed
                         ? new GridLength((NavigationView.CompactPaneLength * 2) - 8)
                         : new GridLength(NavigationView.CompactPaneLength)
-                    : NavigationView.IsBackButtonVisible != muxc.NavigationViewBackButtonVisible.Collapsed
+                    : NavigationView.IsBackButtonVisible != NavigationViewBackButtonVisible.Collapsed
                         ? new GridLength(NavigationView.CompactPaneLength)
                         : new GridLength(0);
             }
             else
             {
-                LeftPaddingColumn.Width = NavigationView.IsBackButtonVisible != muxc.NavigationViewBackButtonVisible.Collapsed
+                LeftPaddingColumn.Width = NavigationView.IsBackButtonVisible != NavigationViewBackButtonVisible.Collapsed
                     ? new GridLength(NavigationView.CompactPaneLength)
                     : new GridLength(0);
             }
@@ -182,7 +181,7 @@ namespace SharpADB.Pages
 
         private void UpdateAppTitleIcon()
         {
-            AppTitlePaddingColumn.Width = NavigationView.DisplayMode != muxc.NavigationViewDisplayMode.Minimal
+            AppTitlePaddingColumn.Width = NavigationView.DisplayMode != NavigationViewDisplayMode.Minimal
                 ? NavigationView.IsPaneOpen ? new GridLength(4) : new GridLength(24)
                 : new GridLength(4);
         }
